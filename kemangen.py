@@ -91,7 +91,7 @@ store(choices) '1234567890'"""
     for key in char_dict:
         if len(char_dict[key]['chars']) == 1:
             if char_dict[key]['type'] == 'punctuation':
-                main_group.append(f"+ '{key}' + ' ' > '{''.join(char_dict[key]['chars'])}'")
+                main_group.append(f"+ '{key}' > '{''.join(char_dict[key]['chars'])}'")
             # Print Character that has only one form
             elif char_dict[key]['type'] == 'letter':
                 main_group.append(f"+ '{key}' > '{''.join(char_dict[key]['chars'])}'")
@@ -100,7 +100,7 @@ store(choices) '1234567890'"""
         else:
             # Add menu line to main group
             if char_dict[key]['type'] == 'punctuation':
-                main_group.append(f"+ '{key}' + ' ' > outs({key}_menu)")
+                main_group.append(f"+ '{key}' > outs({key}_menu)")
             elif char_dict[key]['type'] == 'letter':
                 main_group.append(f"+ '{key}' > outs({key}_menu)")
             else:

@@ -16,7 +16,7 @@ with col1:
             "tenpo,U+23F0\n"
             "pona,👍,word\n"
             "pona2,🙂,word\n"
-            "!,❗,punctuation\n"
+            "!,❗,letter\n"
             "a,🅰,letter")
 
     st.markdown("""# Formatting Rules:
@@ -26,11 +26,6 @@ with col1:
 Rows without a specified "type" or with the "word" type will be treated as text replacements when followed by a space.
 
 Example: Typing "kala " (with a space) will produce 🐟.
-
-## Punctuation:
-The "punctuation" type converts the typed key regardless of what comes before it.
-
-Example: "! " (with a space) will always produce ❗.
 
 ## Letter:
 The "letter" type converts the typed key regardless of what comes before or after it.
