@@ -15,15 +15,39 @@ st.code("kala,🐟\n"
         "pona2,🙂,word\n"
         "!,❗,punctuation\n"
         "a,🅰,letter")
-st.write("Rows with no type, or 'word' type will be treated as text replacement once you type space. In the above example typing 'kala ' (with a space) will produce 🐟.")
-st.write("You can aslo use U+ unicode point notation. In the above example 'tenpo ' (with space) will produce ⏰")
-st.write("If you would like to bring up a menu when something is typed add a single diget number afer the word. In the above example typing 'pona ' will bring up a menu with 👍 and 🙂 as options.")
-st.write("This script current supports two additional 'types', 'punctuation'. The above example will produce❗when '! ' (with a space) is typed, regardles of what come before the !.\n"+
-         "And 'letter' which will always convert the typed key regadless of what comes before or after. In the above example typing 'a' (no space) anywhere will produce ")
-st.write("Keep in mind, in the above example typing 'kala ' will no longer produce 🐟 because the last line will turn all 'a' into '🅰' producing 'k🅰l🅰 ' which is not listed.")
 
+st.markdown("""# Formatting Rules:
 
-keyboardName = st.text_input("Name you want to give to your keyboard")
+# Types:
+
+## Text Replacement:
+Rows without a specified "type" or with the "word" type will be treated as text replacements when followed by a space.
+
+Example: Typing "kala " (with a space) will produce 🐟.
+
+## Punctuation:
+The "punctuation" type converts the typed key regardless of what comes before it.
+
+Example: "! " (with a space) will always produce ❗.
+
+## Letter:
+The "letter" type converts the typed key regardless of what comes before or after it.
+
+Example: Typing "a" (no space) anywhere will produce 🅰.
+            
+#### Unicode: You can use U+ unicode point notation.
+Example: "tenpo " (with space) will produce ⏰.
+            
+#### Menus:
+To bring up a menu after typing something, add a single digit number after the word.
+
+Example: "pona1" will bring up a menu with 👍 and 🙂 as options.
+
+## Important Note:
+Keep in mind that later rules can override earlier rules.
+For example, if you have a rule to replace "a" with "🅰", then "kala " will no longer produce 🐟 because the "a" will be replaced first, resulting in "k🅰l🅰 ".""")
+
+keyboardName = st.text_input("Keyboard Name:")
 outputname = keyboardName.lower().replace(" ", "_")
 
 uploaded_file = st.file_uploader("Choose a file")
