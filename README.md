@@ -1,6 +1,6 @@
-# 🎈 Blank app template
+# 🎈 Keman KMN Generator Streamlit App
 
-A simple Streamlit app template for you to modify!
+A simple Streamlit app to generate KMN files from a CSV file.
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kmn-generator.streamlit.app/)
 
