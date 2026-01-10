@@ -63,7 +63,7 @@ with col2:
             kmn_output = generate_keyman(string_data, keyboardName, 1.0)
             st.download_button('Download KMN', kmn_output, file_name=outputname + '.kmn')
         except Exception as e:
-            st.error(f"Error generating KMN:")
+            st.error(f"Error generating KMN: {e}")
             st.exception(e)
 
 
