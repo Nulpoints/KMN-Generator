@@ -35,6 +35,8 @@ def array_to_word_group(key):
 def generate_keyman(datastring, filename, version):
     basename = filename
     outputname = basename.lower().replace(" ", "_")
+    errors = []
+    haderrors = False
 
     char_dict = {}
     main_group = [
@@ -64,29 +66,34 @@ store(choices) '1234567890'"""
     data = data.split('\n')
 
     for row in data:
-        row = row.split(',')
-        word = row[0].strip("'")
+        try:
+            row = row.split(',')
+            word = row[0].strip("'")
 
-        # if len(word) == 1:
-        #     word = f"'{word}' + ' '"
-        # else:
-        #     word = f"'{word[:-1]}' + '{word[-1]}'"
-        uni = row[1]
+            # if len(word) == 1:
+            #     word = f"'{word}' + ' '"
+            # else:
+            #     word = f"'{word[:-1]}' + '{word[-1]}'"
+            uni = row[1]
 
-        if word[-1].isnumeric():
-            try:
-                char_dict[word[:-1]]['chars'].append(uni)
-            except:
-                char_dict[word[:-1]]['chars'] = [uni]
-        else:
-            char_dict.update({word: {'chars': [uni]}})
+            if word[-1].isnumeric():
+                try:
+                    char_dict[word[:-1]]['chars'].append(uni)
+                except:
+                    char_dict[word[:-1]]['chars'] = [uni]
+            else:
+                char_dict.update({word: {'chars': [uni]}})
 
-        if word[-1].isnumeric():
-            word = word[:-1]
-        if len(row) > 2:
-            char_dict[word]['type'] = row[2]
-        else:
-            char_dict[word]['type'] = 'word'
+            if word[-1].isnumeric():
+                word = word[:-1]
+            if len(row) > 2:
+                char_dict[word]['type'] = row[2]
+            else:
+                char_dict[word]['type'] = 'n'
+        except Exception as e:
+            print(f"Error processing row: {row} -> {e}")
+            errors.append(f"Error processing row: {row} -> {e}")
+            haderrors = True
 
     for key in char_dict:
         if len(char_dict[key]['chars']) == 1:
@@ -116,16 +123,19 @@ store(choices) '1234567890'"""
             error_menu.append(f"dk({key}_err) > beep outs({key}_menu)")
 
     first_group.append("nomatch > use(main)")
-    return (header +
-                "\n" +
-                "\n".join(menu_store) +
-                "\n" +
-                "\n".join(character_store) +
-                "\n" +
-                "\n\t".join(first_group) +
-                "\n" +
-                "\n\t".join(main_group) +
-                "\n" +
-                "\n\t".join(error_menu) +
-                "\n" +
-                "\n".join(word_group))
+    if haderrors:
+        raise Exception("\n".join(errors))
+    else:
+        return (header +
+                    "\n" +
+                    "\n".join(menu_store) +
+                    "\n" +
+                    "\n".join(character_store) +
+                    "\n" +
+                    "\n\t".join(first_group) +
+                    "\n" +
+                    "\n\t".join(main_group) +
+                    "\n" +
+                    "\n\t".join(error_menu) +
+                    "\n" +
+                    "\n".join(word_group))

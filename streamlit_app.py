@@ -2,7 +2,7 @@ import streamlit as st
 from kemangen import generate_keyman
 from io import StringIO
 
-col1, col2 = st.columns([2,1])
+col1, col2 = st.columns([1,1])
 
 with col1:
     st.title("KMN generator")
@@ -59,5 +59,11 @@ with col2:
 
         # To read file as string:
         string_data = stringio.read()
-        st.download_button('Download KMN', generate_keyman(string_data, keyboardName, 1.0), file_name= outputname + '.kmn')
+        try:
+            kmn_output = generate_keyman(string_data, keyboardName, 1.0)
+            st.download_button('Download KMN', kmn_output, file_name=outputname + '.kmn')
+        except Exception as e:
+            st.error(f"Error generating KMN:")
+            st.exception(e)
+
 
