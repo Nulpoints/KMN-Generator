@@ -29,6 +29,7 @@ Example: Typing "kala " (with a space) will produce 🐟.
 
 ## Letter:
 The "letter" type converts the typed key regardless of what comes before or after it.
+The typed key must be a single character.
 
 Example: Typing "a" (no space) anywhere will produce 🅰.
             
