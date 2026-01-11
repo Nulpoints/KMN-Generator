@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+import hashlib
 
 
 def array_to_menu_string(arr):
@@ -22,13 +23,14 @@ def array_to_char_string(key, arr):
 
 
 def array_to_word_group(key):
+    key_hash = hashlib.md5(key.encode()).hexdigest()
     return (
         f"c *******************************************************************\n"
-        f"c {key}_group handles the menu for {key}\n"
-        f"group({key}_group) using keys \n"
-        f"\t +any(choices) > index({key}_chars, 1) use (final)\n"
+        f"c {key_hash}_group handles the menu for {key}\n"
+        f"group({key_hash}_group) using keys \n"
+        f"\t +any(choices) > index({key_hash}_chars, 1) use (final)\n"
         f"\t + [K_BKSP]         > nul\n"
-        f"\t nomatch            > dk({key}_err) use(final)\n"
+        f"\t nomatch            > dk({key_hash}_err) use(final)\n"
     )
 
 
@@ -37,6 +39,7 @@ def generate_keyman(datastring, filename, version):
     outputname = basename.lower().replace(" ", "_")
     errors = []
     haderrors = False
+    row_number = 0
 
     char_dict = {}
     main_group = [
@@ -66,6 +69,7 @@ store(choices) '1234567890'"""
     data = data.split('\n')
 
     for row in data:
+        row_number += 1
         try:
             row = row.split(',')
             word = row[0].strip("'")
@@ -92,10 +96,11 @@ store(choices) '1234567890'"""
                 char_dict[word]['type'] = 'n'
         except Exception as e:
             print(f"Error processing row: {row} -> {e}")
-            errors.append(f"Error processing row: {row} -> {e}")
+            errors.append(f"Error processing row number {row_number}: {row} -> {e}")
             haderrors = True
 
     for key in char_dict:
+        key_hash = hashlib.md5(key.encode()).hexdigest()
         if len(char_dict[key]['chars']) == 1:
             if char_dict[key]['type'] == 'punctuation':
                 main_group.append(f"+ '{key}' > '{''.join(char_dict[key]['chars'])}'")
@@ -107,20 +112,27 @@ store(choices) '1234567890'"""
         else:
             # Add menu line to main group
             if char_dict[key]['type'] == 'punctuation':
-                main_group.append(f"+ '{key}' > outs({key}_menu)")
+                main_group.append(f"c Hash for {key} is {key_hash}")
+                main_group.append(f"+ '{key}' > outs({key_hash}_menu)")
             elif char_dict[key]['type'] == 'letter':
-                main_group.append(f"+ '{key}' > outs({key}_menu)")
+                main_group.append(f"c Hash for {key} is {key_hash}")
+                main_group.append(f"+ '{key}' > outs({key_hash}_menu)")
             else:
-                main_group.append(f"'{key}' + ' ' > outs({key}_menu)")
+                main_group.append(f"c Hash for {key} is {key_hash}")
+                main_group.append(f"'{key}' + ' ' > outs({key_hash}_menu)")
             # Add menu line to menu_store
-            menu_store.append(f"store({key}_menu) '[{array_to_menu_string(char_dict[key]['chars'])}]'")
+            menu_store.append(f"c Hash for {key} is {key_hash}")
+            menu_store.append(f"store({key_hash}_menu) '[{array_to_menu_string(char_dict[key]['chars'])}]'")
             # Add Character Store Line
-            character_store.append(f"store({key}_chars) {array_to_char_string(key, char_dict[key]['chars'])}")
+            character_store.append(f"c Hash for {key} is {key_hash}")
+            character_store.append(f"store({key_hash}_chars) {array_to_char_string(key, char_dict[key]['chars'])}")
             # Add to First Group
-            first_group.append(f"outs({key}_menu) > use({key}_group)")
+            first_group.append(f"c Hash for {key} is {key_hash}")
+            first_group.append(f"outs({key_hash}_menu) > use({key_hash}_group)")
             # Add to Word Group
             word_group.append(array_to_word_group(key))
-            error_menu.append(f"dk({key}_err) > beep outs({key}_menu)")
+            error_menu.append(f"c Hash for {key} is {key_hash}")
+            error_menu.append(f"dk({key_hash}_err) > beep outs({key_hash}_menu)")
 
     first_group.append("nomatch > use(main)")
     if haderrors:
