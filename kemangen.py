@@ -12,13 +12,14 @@ def array_to_menu_string(arr):
 
 def array_to_char_string(key, arr):
     result = "'"
+    key_hash = hashlib.md5(key.encode()).hexdigest()
     for i in range(10):
         if i <= len(arr) - 1:
             result += arr[i]
             if i == len(arr) - 1:
                 result += "'"
         else:
-            result += f" dk({key}_err)"
+            result += f" dk({key_hash}_err)"
     return result
 
 
