@@ -1,23 +1,34 @@
 from datetime import datetime
 from pathlib import Path
 import hashlib
+import re
 
+def is_unicode_code(s: str) -> bool:
+    m = re.fullmatch(r'(?i)u\+([0-9a-f]{1,6})', s)  # case-insensitive
+    if not m:
+        return False
+    val = int(m.group(1), 16)
+    return 0 <= val <= 0x10FFFF and not (0xD800 <= val <= 0xDFFF)
 
 def array_to_menu_string(arr):
     result = ""
     for i, char in enumerate(arr):
-        result += f"{i + 1}{char} "
+        if is_unicode_code(char):
+            result += f" '{i + 1}' {char} "
+        else:
+            result += f" '{i + 1}{char}' "
     return result.rstrip()
 
 
 def array_to_char_string(key, arr):
-    result = "'"
+    result = ""
     key_hash = hashlib.md5(key.encode()).hexdigest()
     for i in range(10):
         if i <= len(arr) - 1:
-            result += arr[i]
-            if i == len(arr) - 1:
-                result += "'"
+            if is_unicode_code(arr[i]):
+                result += f" {arr[i]} "
+            else:
+                result += f" '{arr[i]}' "
         else:
             result += f" dk({key_hash}_err)"
     return result
@@ -104,26 +115,35 @@ store(choices) '1234567890'"""
         key_hash = hashlib.md5(key.encode()).hexdigest()
         if len(char_dict[key]['chars']) == 1:
             if char_dict[key]['type'] == 'punctuation':
-                main_group.append(f"+ '{key}' > '{''.join(char_dict[key]['chars'])}'")
+                if is_unicode_code(char_dict[key]['chars'][0]):
+                    main_group.append(f"+ \"{key}\" > {''.join(char_dict[key]['chars'])}")
+                else:
+                    main_group.append(f"+ \"{key}\" > '{''.join(char_dict[key]['chars'])}'")
             # Print Character that has only one form
             elif char_dict[key]['type'] == 'letter':
-                main_group.append(f"+ '{key}' > '{''.join(char_dict[key]['chars'])}'")
+                if is_unicode_code(char_dict[key]['chars'][0]):
+                    main_group.append(f"+ \"{key}\" > {''.join(char_dict[key]['chars'])}")
+                else:
+                    main_group.append(f"+ \"{key}\" > '{''.join(char_dict[key]['chars'])}'")
             else:
-                main_group.append(f"'{key}' + ' ' > '{''.join(char_dict[key]['chars'])}'")
+                if is_unicode_code(char_dict[key]['chars'][0]):
+                    main_group.append(f"\"{key}\" + ' ' > {''.join(char_dict[key]['chars'])}")
+                else:
+                    main_group.append(f"\"{key}\" + ' ' > '{''.join(char_dict[key]['chars'])}'")
         else:
             # Add menu line to main group
             if char_dict[key]['type'] == 'punctuation':
                 main_group.append(f"c Hash for {key} is {key_hash}")
-                main_group.append(f"+ '{key}' > outs({key_hash}_menu)")
+                main_group.append(f"+ \"{key}\" > outs({key_hash}_menu)")
             elif char_dict[key]['type'] == 'letter':
                 main_group.append(f"c Hash for {key} is {key_hash}")
-                main_group.append(f"+ '{key}' > outs({key_hash}_menu)")
+                main_group.append(f"+ \"{key}\" > outs({key_hash}_menu)")
             else:
                 main_group.append(f"c Hash for {key} is {key_hash}")
-                main_group.append(f"'{key}' + ' ' > outs({key_hash}_menu)")
+                main_group.append(f"\"{key}\" + ' ' > outs({key_hash}_menu)")
             # Add menu line to menu_store
             menu_store.append(f"c Hash for {key} is {key_hash}")
-            menu_store.append(f"store({key_hash}_menu) '[{array_to_menu_string(char_dict[key]['chars'])}]'")
+            menu_store.append(f"store({key_hash}_menu) '['{array_to_menu_string(char_dict[key]['chars'])} ']'")
             # Add Character Store Line
             character_store.append(f"c Hash for {key} is {key_hash}")
             character_store.append(f"store({key_hash}_chars) {array_to_char_string(key, char_dict[key]['chars'])}")
